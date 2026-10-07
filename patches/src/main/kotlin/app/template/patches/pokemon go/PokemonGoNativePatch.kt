@@ -27,9 +27,14 @@ val pokemonGoNativeBootstrap = rawResourcePatch(
         val dir = get("lib/arm64-v8a")
         val original = dir.resolve("libmain.so")
         //val loader = Thread.currentThread().contextClassLoader
-        val patchClassLoader = PokemonGoNativePatchKt::class.java.classLoader
+        //val patchClassLoader = PokemonGoNativePatchKt::class.java.classLoader
+    //?: error("Unable to resolve the Pokémon GO patch bundle class loader")
+
+val patchClassLoader = object {}.javaClass.classLoader
     ?: error("Unable to resolve the Pokémon GO patch bundle class loader")
 
+    
+    
         val bootstrap = patchClassLoader
             .getResourceAsStream("pgo/arm64-v8a/libmain.so")
             ?.readBytes()
