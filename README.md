@@ -15,19 +15,19 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.3](https://github.com/belalsalah74/pogo1/releases/tag/v1.0.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;1 patches total
+> **[v1.0.4](https://github.com/belalsalah74/pogo1/releases/tag/v1.0.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;1 patches total
 <details open>
 <summary>📦 Pokémon GO&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
 <br>
 
 **🎯 Supported versions:**
 
-| 0.429.1 |
+| 0.431.0 |
 | :---: |
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Enhanced throw](#enhanced-throw) | Installs the experimental native research loader for Pokémon GO 0.429.1 arm64-v8a. |  |
+| [Enhanced throw](#enhanced-throw) | Installs the experimental native research loader for Pokémon GO 0.431.0 arm64-v8a. |  |
 
 </details>
 

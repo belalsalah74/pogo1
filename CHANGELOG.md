@@ -1,3 +1,9 @@
+## [1.0.4](https://github.com/belalsalah74/pogo1/compare/v1.0.3...v1.0.4) (2026-10-08)
+
+### 🐛 Bug Fixes
+
+* fix update ([17848b1](https://github.com/belalsalah74/pogo1/commit/17848b135f4aab07d532b52547db9c4e82114876))
+
 ## [1.0.3](https://github.com/belalsalah74/pogo1/compare/v1.0.2...v1.0.3) (2026-10-08)
 
 ### 🐛 Bug Fixes
