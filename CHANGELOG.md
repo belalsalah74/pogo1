@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/belalsalah74/pogo1/compare/v1.0.1...v1.0.2) (2026-10-08)
+
+### 🐛 Bug Fixes
+
+* fix wrapper ([b7a0442](https://github.com/belalsalah74/pogo1/commit/b7a044279e87952d70d28541e055f402ea9a2142))
+
 ## [1.0.1](https://github.com/belalsalah74/pogo1/compare/v1.0.0...v1.0.1) (2026-10-07)
 
 ### 🐛 Bug Fixes

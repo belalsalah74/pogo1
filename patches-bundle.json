@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-07T15:24:42",
-  "description": "## [1.0.1](https://github.com/belalsalah74/pogo1/compare/v1.0.0...v1.0.1) (2026-10-07)\n\n### 🐛 Bug Fixes\n\n* fix error ([d0ab7a6](https://github.com/belalsalah74/pogo1/commit/d0ab7a6d07866d3089542cb498fecddc3449c82c))\n* fix syntax error  ([13d82d3](https://github.com/belalsalah74/pogo1/commit/13d82d33c2f8623a5165707b4eddd71934bb24eb))\n* fix wrong class ([2ea9dd5](https://github.com/belalsalah74/pogo1/commit/2ea9dd5db9e08fc9bc8a7c75c28bcc89e1f60b24))\n* fixin ([77a0fef](https://github.com/belalsalah74/pogo1/commit/77a0fef2a23eb8d18f12c0ecaa634051e99070e1))",
-  "download_url": "https://github.com/belalsalah74/pogo1/releases/download/v1.0.1/patches-1.0.1.mpp",
+  "created_at": "2026-10-08T06:42:15",
+  "description": "## [1.0.2](https://github.com/belalsalah74/pogo1/compare/v1.0.1...v1.0.2) (2026-10-08)\n\n### 🐛 Bug Fixes\n\n* fix wrapper ([b7a0442](https://github.com/belalsalah74/pogo1/commit/b7a044279e87952d70d28541e055f402ea9a2142))",
+  "download_url": "https://github.com/belalsalah74/pogo1/releases/download/v1.0.2/patches-1.0.2.mpp",
   "signature_download_url": "",
-  "version": "1.0.1"
+  "version": "1.0.2"
 }
