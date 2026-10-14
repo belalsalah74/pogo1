@@ -1,3 +1,9 @@
+## [1.0.0-dev.3](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-10-14)
+
+### ✨ New Features
+
+* add Google sign-in callback patch for Pokémon GO 0.431.0 ([785ef9b](https://github.com/belalsalah74/pogo1/commit/785ef9b01f67b9d8c21583b58f5777152559cf25))
+
 ## [1.0.0-dev.2](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-10-14)
 
 ### 🐛 Bug Fixes

@@ -1,10 +1,37 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.2",
+  "version": "1.0.0-dev.3",
   "patches": [
     {
       "name": "Enhanced throw",
       "description": "Installs the experimental native research loader for Pokémon GO 0.431.0 arm64-v8a.",
+      "default": true,
+      "category": null,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.nianticlabs.pokemongo",
+          "name": "Pokémon GO",
+          "description": null,
+          "apkFileType": null,
+          "appIconColor": null,
+          "signatures": null,
+          "targets": [
+            {
+              "version": "0.431.0",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Google sign-in callback",
+      "description": "Registers the Google OAuth callback scheme used by the working PGSharp 1.272.2 build.",
       "default": true,
       "category": null,
       "dependencies": [],

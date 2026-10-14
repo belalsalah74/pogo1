@@ -15,9 +15,9 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.2](https://github.com/belalsalah74/pogo1/releases/tag/v1.0.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;1 patches total
+> **[v1.0.0-dev.3](https://github.com/belalsalah74/pogo1/releases/tag/v1.0.0-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
-<summary>📦 Pokémon GO&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
+<summary>📦 Pokémon GO&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
 
 **🎯 Supported versions:**
@@ -28,6 +28,7 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Enhanced throw](#enhanced-throw) | Installs the experimental native research loader for Pokémon GO 0.431.0 arm64-v8a. |  |
+| [Google sign-in callback](#google-sign-in-callback) | Registers the Google OAuth callback scheme used by the working PGSharp 1.272.2 build. |  |
 
 </details>
 

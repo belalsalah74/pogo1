@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-14T05:16:48",
-  "description": "## [1.0.0-dev.2](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-10-14)\n\n### 🐛 Bug Fixes\n\n* add native throw hook diagnostics ([8d66177](https://github.com/belalsalah74/pogo1/commit/8d66177bb4d744fc19592a50d73a46dfa0ba93ac))\n* update Android SDK setup action ([f48e89a](https://github.com/belalsalah74/pogo1/commit/f48e89ace0cdc36686756462962f07ded4a4fd70))",
-  "download_url": "https://github.com/belalsalah74/pogo1/releases/download/v1.0.0-dev.2/patches-1.0.0-dev.2.mpp",
+  "created_at": "2026-10-14T18:15:07",
+  "description": "## [1.0.0-dev.3](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-10-14)\n\n### ✨ New Features\n\n* add Google sign-in callback patch for Pokémon GO 0.431.0 ([785ef9b](https://github.com/belalsalah74/pogo1/commit/785ef9b01f67b9d8c21583b58f5777152559cf25))",
+  "download_url": "https://github.com/belalsalah74/pogo1/releases/download/v1.0.0-dev.3/patches-1.0.0-dev.3.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.2"
+  "version": "1.0.0-dev.3"
 }
