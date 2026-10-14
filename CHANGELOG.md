@@ -1,3 +1,9 @@
+## [1.0.0-dev.5](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-10-14)
+
+### 🐛 Bug Fixes
+
+* route Google OAuth callback to Unity activity ([31cb404](https://github.com/belalsalah74/pogo1/commit/31cb404cfc1d6496eb336fbe46643c0489584f97))
+
 ## [1.0.0-dev.4](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-10-14)
 
 ### 🐛 Bug Fixes

@@ -15,7 +15,7 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.4](https://github.com/belalsalah74/pogo1/releases/tag/v1.0.0-dev.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
+> **[v1.0.0-dev.5](https://github.com/belalsalah74/pogo1/releases/tag/v1.0.0-dev.5)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
 <summary>📦 Pokémon GO&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -28,7 +28,7 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Enhanced throw](#enhanced-throw) | Installs the experimental native research loader for Pokémon GO 0.431.0 arm64-v8a. May prevent the game from starting; enable only for testing. |  |
-| [Google sign-in callback](#google-sign-in-callback) | Registers the Google OAuth callback scheme used by the working PGSharp 1.272.2 build. |  |
+| [Google sign-in callback](#google-sign-in-callback) | Routes the Google OAuth browser callback to UnityMainActivity for Pokémon GO 0.431.0. |  |
 
 </details>
 
