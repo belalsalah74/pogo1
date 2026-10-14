@@ -1,3 +1,9 @@
+## [1.0.0-dev.4](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-10-14)
+
+### 🐛 Bug Fixes
+
+* disable experimental Pokémon GO native loader by default ([f123814](https://github.com/belalsalah74/pogo1/commit/f123814f3db32084164ed863d2d31e165a1390a5))
+
 ## [1.0.0-dev.3](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-10-14)
 
 ### ✨ New Features

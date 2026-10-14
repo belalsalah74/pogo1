@@ -1,11 +1,11 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.3",
+  "version": "1.0.0-dev.4",
   "patches": [
     {
       "name": "Enhanced throw",
-      "description": "Installs the experimental native research loader for Pokémon GO 0.431.0 arm64-v8a.",
-      "default": true,
+      "description": "Installs the experimental native research loader for Pokémon GO 0.431.0 arm64-v8a. May prevent the game from starting; enable only for testing.",
+      "default": false,
       "category": null,
       "dependencies": [],
       "compatiblePackages": [
