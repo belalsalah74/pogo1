@@ -22,10 +22,19 @@ static char g_maps[MAPS_CAPACITY];
 
 typedef void (*curve_set_t)(void*, float, float, float, void*);
 static curve_set_t orig_curve_set;
+static volatile unsigned int g_hook_calls;
+
 static void curve_set_hook(void *self, float x, float y, float z, void *mi) {
-    float mag = x*x + y*y + z*z;
-    if (mag < 0.000001f) x = 1.0f;
-    orig_curve_set(self, x, y, z, mi);
+    unsigned int call = __sync_add_and_fetch(&g_hook_calls, 1);
+    if (call <= 10) LOGI("curve setter invoked #%u self=%p vector=(%f,%f,%f) method=%p",
+                         call, self, x, y, z, mi);
+    if (orig_curve_set) {
+        float mag = x*x + y*y + z*z;
+        if (mag < 0.000001f) x = 1.0f;
+        orig_curve_set(self, x, y, z, mi);
+    } else {
+        LOGI("ERROR: original curve setter is null; call dropped");
+    }
 }
 
 static uintptr_t parse_hex(const char **p, const char *end) {
@@ -43,9 +52,8 @@ static uintptr_t find_base(char *maps, ssize_t n) {
         const char *p=maps+s, *end=maps+i;
         uintptr_t lo=parse_hex(&p,end);
         while(p<end&&*p!='-')++p; if(p<end)++p;
-        uintptr_t hi=parse_hex(&p,end); (void)hi;
+        (void)parse_hex(&p,end);
         while(p<end&&*p==' ')++p;
-        /* The first file-offset-zero mapping is the ELF load bias. */
         const char *q=p; while(q<end&&*q!=' ')++q;
         while(q<end&&*q==' ')++q;
         uintptr_t off=parse_hex(&q,end);
@@ -70,7 +78,7 @@ static int install(uintptr_t base, char *maps, ssize_t n) {
                     volatile uintptr_t *slot=(volatile uintptr_t*)a;
                     if(*slot!=target) continue;
                     uintptr_t page=a&~(PAGE_SIZE-1UL);
-                    if(mprotect((void*)page,PAGE_SIZE,prot|PROT_WRITE)!=0) { LOGI("mprotect failed slot=%lx",(unsigned long)a); continue; }
+                    if(mprotect((void*)page,PAGE_SIZE,prot|PROT_WRITE)!=0) { LOGI("mprotect failed slot=%lx", (unsigned long)a); continue; }
                     orig_curve_set=(curve_set_t)target;
                     *slot=(uintptr_t)curve_set_hook;
                     (void)mprotect((void*)page,PAGE_SIZE,prot);
@@ -90,14 +98,20 @@ static void *worker(void *unused) {
         if(!base)usleep(100000);
     }
     if(!base){LOGI("libil2cpp base not found");return 0;}
+    LOGI("libil2cpp base=%lx target=%lx", (unsigned long)base, (unsigned long)(base+IL2CPP_RVA_CURVE_SET));
     for(int i=0;i<8;i++) {
         int fd=open("/proc/self/maps",O_RDONLY); if(fd<0){usleep(250000);continue;}
         n=read(fd,maps,MAPS_CAPACITY-1);close(fd);if(n<=0){usleep(250000);continue;}maps[n]=0;
         int matches=install(base,maps,n);
-        if(matches){LOGI("curve setter hook installed matches=%d target=%lx",matches,(unsigned long)(base+IL2CPP_RVA_CURVE_SET));return 0;}
+        if(matches){LOGI("curve setter pointer slot installed matches=%d; awaiting invocation",matches);return 0;}
         usleep(250000);
     }
-    LOGI("curve setter pointer slot not found target=%lx",(unsigned long)(base+IL2CPP_RVA_CURVE_SET));
+    LOGI("curve setter pointer slot not found target=%lx", (unsigned long)(base+IL2CPP_RVA_CURVE_SET));
     return 0;
 }
-__attribute__((constructor)) static void init(void) { pthread_t t; if(pthread_create(&t,0,worker,0)==0)pthread_detach(t); }
+__attribute__((constructor)) static void init(void) {
+    LOGI("native hook payload loaded");
+    pthread_t t;
+    if(pthread_create(&t,0,worker,0)==0) pthread_detach(t);
+    else LOGI("failed to start hook worker");
+}
