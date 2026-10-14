@@ -19,7 +19,8 @@ private val COMPATIBILITY_POKEMON_GO = Compatibility(
  */
 val pokemonGoNativeBootstrap = rawResourcePatch(
     name = "Enhanced throw",
-    description = "Installs the experimental native research loader for Pokémon GO 0.431.0 arm64-v8a.",
+    description = "Installs the experimental native research loader for Pokémon GO 0.431.0 arm64-v8a. May prevent the game from starting; enable only for testing.",
+    default = false,
 ) {
     compatibleWith(COMPATIBILITY_POKEMON_GO)
 
