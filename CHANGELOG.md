@@ -1,3 +1,9 @@
+## [1.0.0-dev.7](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.6...v1.0.0-dev.7) (2026-10-15)
+
+### 🐛 Bug Fixes
+
+* use correct Android arm64 pthread handle type ([4bb59b1](https://github.com/belalsalah74/pogo1/commit/4bb59b1dcdd1cee1ba33c596b789b59698ef57b9))
+
 ## [1.0.0-dev.6](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2026-10-15)
 
 ### 🐛 Bug Fixes
