@@ -1,3 +1,9 @@
+## [1.0.0-dev.8](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.7...v1.0.0-dev.8) (2026-10-15)
+
+### 🐛 Bug Fixes
+
+* hook outgoing catch request for enhanced throw ([6036330](https://github.com/belalsalah74/pogo1/commit/6036330391d4037e1dd2ebce6f82c768e0c1693c))
+
 ## [1.0.0-dev.7](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.6...v1.0.0-dev.7) (2026-10-15)
 
 ### 🐛 Bug Fixes

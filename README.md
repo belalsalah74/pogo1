@@ -15,7 +15,7 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.7](https://github.com/belalsalah74/pogo1/releases/tag/v1.0.0-dev.7)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
+> **[v1.0.0-dev.8](https://github.com/belalsalah74/pogo1/releases/tag/v1.0.0-dev.8)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
 <summary>📦 Pokémon GO&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -27,7 +27,7 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Enhanced throw](#enhanced-throw) | Installs the experimental native research loader for Pokémon GO 0.431.0 arm64-v8a. May prevent the game from starting; enable only for testing. |  |
+| [Enhanced throw](#enhanced-throw) | Experimental Pokémon GO 0.431.0 ARM64 hook that adjusts outgoing catch-request fields for an Excellent hit and curveball; runtime behavior is not yet verified. |  |
 | [Google sign-in callback](#google-sign-in-callback) | Routes the Google OAuth browser callback to UnityMainActivity for Pokémon GO 0.431.0. |  |
 
 </details>
