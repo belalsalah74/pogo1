@@ -1,3 +1,9 @@
+## [1.0.0-dev.9](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.8...v1.0.0-dev.9) (2026-10-15)
+
+### 🐛 Bug Fixes
+
+* rewrite catch fields before protobuf size calculation ([4570012](https://github.com/belalsalah74/pogo1/commit/4570012678451497eccd222c2857b7af57042a72))
+
 ## [1.0.0-dev.8](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.7...v1.0.0-dev.8) (2026-10-15)
 
 ### 🐛 Bug Fixes
