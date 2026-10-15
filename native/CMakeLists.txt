@@ -6,6 +6,11 @@ set_target_properties(pgo_hook PROPERTIES OUTPUT_NAME pgo_hook)
 
 add_library(main_wrapper SHARED libmain_wrapper.c)
 set_target_properties(main_wrapper PROPERTIES OUTPUT_NAME main)
+# The stock Pokémon GO libmain.so has DT_SONAME "libmain.so". Since the
+# patch renames that original file to libmain_orig.so, the wrapper must use
+# a different SONAME; otherwise Android's linker can treat the renamed
+# original as the already-loaded wrapper and recurse into JNI_OnLoad.
+target_link_options(main_wrapper PRIVATE "-Wl,-soname,libmain_wrapper.so")
 
 find_library(log-lib log)
 find_library(dl-lib dl)
