@@ -37,11 +37,15 @@ extern int mprotect(void*, size_t, int);
 #define SLOT_CATCH_WRITE_TO 0x0E8422C8UL
 #define RVA_CATCH_WRITE_CONTEXT 0x0B00C97CUL
 #define SLOT_CATCH_WRITE_CONTEXT 0x0E8422D0UL
+#define RVA_CATCH_CALCULATE_SIZE 0x0B00CE7CUL
+#define SLOT_CATCH_CALCULATE_SIZE 0x0E8422D8UL
 
 static char g_maps[MAPS_CAPACITY];
 typedef void (*catch_write_t)(void*, void*, void*);
+typedef int (*catch_calculate_size_t)(void*, void*);
 static catch_write_t orig_catch_write_to;
 static catch_write_t orig_catch_write_context;
+static catch_calculate_size_t orig_catch_calculate_size;
 static volatile unsigned int g_hook_calls;
 
 static uintptr_t parse_hex(const char **p, const char *end) {
@@ -206,6 +210,21 @@ static void catch_write_context_hook(void *self, void *writer, void *mi) {
     }
 }
 
+/*
+ * CalculateSize is also intercepted so the same fields are present when the
+ * protobuf message length is computed. Changing optional zero fields only in
+ * WriteTo could otherwise make the later serialized message longer than the
+ * reserved output buffer.
+ */
+static int catch_calculate_size_hook(void *self, void *mi) {
+    rewrite_catch_request(self);
+    if (orig_catch_calculate_size) {
+        return orig_catch_calculate_size(self, mi);
+    }
+    LOGE("original CatchPokemonProto.CalculateSize is null");
+    return 0;
+}
+
 static void *worker(void *unused) {
     (void)unused;
     uintptr_t base = 0;
@@ -231,16 +250,20 @@ static void *worker(void *unused) {
 
     uintptr_t target_write_to = base + RVA_CATCH_WRITE_TO;
     uintptr_t target_write_context = base + RVA_CATCH_WRITE_CONTEXT;
+    uintptr_t target_calculate_size = base + RVA_CATCH_CALCULATE_SIZE;
     uintptr_t slot_write_to = base + SLOT_CATCH_WRITE_TO;
     uintptr_t slot_write_context = base + SLOT_CATCH_WRITE_CONTEXT;
+    uintptr_t slot_calculate_size = base + SLOT_CATCH_CALCULATE_SIZE;
 
     orig_catch_write_to = (catch_write_t)target_write_to;
     orig_catch_write_context = (catch_write_t)target_write_context;
+    orig_catch_calculate_size = (catch_calculate_size_t)target_calculate_size;
 
-    LOGI("libil2cpp base=%lx WriteTo=%lx slot=%lx khg=%lx slot=%lx",
+    LOGI("libil2cpp base=%lx WriteTo=%lx slot=%lx khg=%lx slot=%lx CalculateSize=%lx slot=%lx",
          (unsigned long)base,
          (unsigned long)target_write_to, (unsigned long)slot_write_to,
-         (unsigned long)target_write_context, (unsigned long)slot_write_context);
+         (unsigned long)target_write_context, (unsigned long)slot_write_context,
+         (unsigned long)target_calculate_size, (unsigned long)slot_calculate_size);
 
     /* The library mapping exists only after relocation; read current maps once more. */
     int fd = open("/proc/self/maps", O_RDONLY);
@@ -256,14 +279,16 @@ static void *worker(void *unused) {
     }
     g_maps[n] = 0;
 
+    int calculate_size_ok = install_exact_slot(slot_calculate_size, target_calculate_size,
+                                                (uintptr_t)catch_calculate_size_hook, g_maps, n);
     int write_to_ok = install_exact_slot(slot_write_to, target_write_to,
                                          (uintptr_t)catch_write_to_hook, g_maps, n);
     int write_context_ok = install_exact_slot(slot_write_context, target_write_context,
                                               (uintptr_t)catch_write_context_hook, g_maps, n);
 
-    if (write_to_ok || write_context_ok) {
-        LOGI("Enhanced Throw serializer hooks installed: WriteTo=%d khg=%d",
-             write_to_ok, write_context_ok);
+    if (calculate_size_ok || write_to_ok || write_context_ok) {
+        LOGI("Enhanced Throw hooks installed: CalculateSize=%d WriteTo=%d khg=%d",
+             calculate_size_ok, write_to_ok, write_context_ok);
     } else {
         LOGE("no serializer hook installed; binary did not match verified 0.431.0 layout");
     }
