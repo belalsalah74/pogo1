@@ -1,3 +1,9 @@
+## [1.0.0-dev.10](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.9...v1.0.0-dev.10) (2026-10-15)
+
+### 🐛 Bug Fixes
+
+* forward Google OAuth activity result to Unity ([083f0ce](https://github.com/belalsalah74/pogo1/commit/083f0cec9cae2ac7df28362054b5efe9a73dd962))
+
 ## [1.0.0-dev.9](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.8...v1.0.0-dev.9) (2026-10-15)
 
 ### 🐛 Bug Fixes

@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.9",
+  "version": "1.0.0-dev.10",
   "patches": [
     {
       "name": "Enhanced throw",
@@ -31,10 +31,12 @@
     },
     {
       "name": "Google sign-in callback",
-      "description": "Routes the Google OAuth browser callback to UnityMainActivity for Pokémon GO 0.431.0.",
+      "description": "Routes the Google OAuth callback to Unity and forwards its URI for Pokémon GO 0.431.0.",
       "default": true,
       "category": null,
-      "dependencies": [],
+      "dependencies": [
+        "BytecodePatch"
+      ],
       "compatiblePackages": [
         {
           "packageName": "com.nianticlabs.pokemongo",
