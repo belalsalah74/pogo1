@@ -1,7 +1,11 @@
 typedef unsigned long uintptr_t;
 typedef unsigned long size_t;
 typedef long ssize_t;
-typedef struct { unsigned long opaque[8]; } pthread_t;
+/* Android bionic defines pthread_t as a pointer on arm64. Using a fake
+ * struct here makes pthread_detach receive the struct address instead of
+ * the handle returned by pthread_create, aborting the app during dlopen.
+ */
+typedef void *pthread_t;
 extern int open(const char*, int, ...);
 extern ssize_t read(int, void*, size_t);
 extern int close(int);
