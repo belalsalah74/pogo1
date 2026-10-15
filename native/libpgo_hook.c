@@ -1,121 +1,281 @@
 typedef unsigned long uintptr_t;
 typedef unsigned long size_t;
 typedef long ssize_t;
-/* Android bionic defines pthread_t as a pointer on arm64. Using a fake
- * struct here makes pthread_detach receive the struct address instead of
- * the handle returned by pthread_create, aborting the app during dlopen.
- */
+typedef unsigned char uint8_t;
 typedef void *pthread_t;
+
+/* Minimal bionic declarations: avoid relying on system headers in this payload. */
 extern int open(const char*, int, ...);
 extern ssize_t read(int, void*, size_t);
 extern int close(int);
 extern int usleep(unsigned int);
 extern int pthread_create(pthread_t*, const void*, void*(*)(void*), void*);
 extern int pthread_detach(pthread_t);
-extern int __android_log_print(int,const char*,const char*,...);
+extern int __android_log_print(int, const char*, const char*, ...);
 extern int mprotect(void*, size_t, int);
+
 #define O_RDONLY 0
 #define PROT_READ 1
 #define PROT_WRITE 2
 #define PROT_EXEC 4
-#define LOGI(...) __android_log_print(4,"PGOHOOK431",__VA_ARGS__)
-#define IL2CPP_RVA_CURVE_SET 0xAC16314UL
+#define LOGI(...) __android_log_print(4, "PGOHOOK431", __VA_ARGS__)
+#define LOGE(...) __android_log_print(6, "PGOHOOK431", __VA_ARGS__)
 #define PAGE_SIZE 4096UL
 #define MAPS_CAPACITY (1024UL * 1024UL)
-static char g_maps[MAPS_CAPACITY];
 
-typedef void (*curve_set_t)(void*, float, float, float, void*);
-static curve_set_t orig_curve_set;
+/*
+ * Verified from the exact Pokémon GO 0.431.0 ARM64 binary and metadata:
+ * Holoholo.Rpc.CatchPokemonProto.WriteTo(CodedOutputStream)
+ *   Method token 0x06002B93, entry RVA 0x0B00C95C, codegen pointer slot RVA 0x0E8422C8
+ * Holoholo.Rpc.CatchPokemonProto.khg(ref WriteContext)
+ *   Method token 0x06002B94, entry RVA 0x0B00C97C, codegen pointer slot RVA 0x0E8422D0
+ *
+ * Both entries have the same IL2CPP ARM64 argument layout for our purposes:
+ * instance, output/writer pointer, hidden MethodInfo pointer.
+ */
+#define RVA_CATCH_WRITE_TO 0x0B00C95CUL
+#define SLOT_CATCH_WRITE_TO 0x0E8422C8UL
+#define RVA_CATCH_WRITE_CONTEXT 0x0B00C97CUL
+#define SLOT_CATCH_WRITE_CONTEXT 0x0E8422D0UL
+
+static char g_maps[MAPS_CAPACITY];
+typedef void (*catch_write_t)(void*, void*, void*);
+static catch_write_t orig_catch_write_to;
+static catch_write_t orig_catch_write_context;
 static volatile unsigned int g_hook_calls;
 
-static void curve_set_hook(void *self, float x, float y, float z, void *mi) {
+static uintptr_t parse_hex(const char **p, const char *end) {
+    uintptr_t v = 0;
+    while (*p < end) {
+        char c = **p;
+        int d;
+        if (c >= '0' && c <= '9') d = c - '0';
+        else if (c >= 'a' && c <= 'f') d = c - 'a' + 10;
+        else if (c >= 'A' && c <= 'F') d = c - 'A' + 10;
+        else break;
+        v = (v << 4) | (uintptr_t)d;
+        ++*p;
+    }
+    return v;
+}
+
+static int line_has_path(const char *line, const char *end, const char *needle) {
+    for (const char *p = line; p < end; ++p) {
+        const char *a = p;
+        const char *b = needle;
+        while (a < end && *b && *a == *b) { ++a; ++b; }
+        if (*b == 0) return 1;
+    }
+    return 0;
+}
+
+/* The ELF load bias is the start of the /libil2cpp.so mapping with file offset 0. */
+static uintptr_t find_base(char *maps, ssize_t n) {
+    const char *needle = "/libil2cpp.so";
+    for (ssize_t i = 0; i < n;) {
+        ssize_t e = i;
+        while (e < n && maps[e] != '\n') ++e;
+        const char *line = maps + i;
+        const char *end = maps + e;
+
+        if (line_has_path(line, end, needle)) {
+            const char *p = line;
+            uintptr_t lo = parse_hex(&p, end);
+            while (p < end && *p == '-') ++p;
+            (void)parse_hex(&p, end);
+            while (p < end && *p == ' ') ++p;
+            while (p < end && *p != ' ') ++p; /* permissions */
+            while (p < end && *p == ' ') ++p;
+            uintptr_t offset = parse_hex(&p, end);
+            if (offset == 0) return lo;
+        }
+        i = e + 1;
+    }
+    return 0;
+}
+
+static int mapping_protection(char *maps, ssize_t n, uintptr_t address) {
+    for (ssize_t i = 0; i < n;) {
+        ssize_t e = i;
+        while (e < n && maps[e] != '\n') ++e;
+        const char *p = maps + i;
+        const char *end = maps + e;
+        uintptr_t lo = parse_hex(&p, end);
+        while (p < end && *p == '-') ++p;
+        uintptr_t hi = parse_hex(&p, end);
+        while (p < end && *p == ' ') ++p;
+
+        if (address >= lo && address < hi) {
+            int prot = 0;
+            if (p < end && p[0] == 'r') prot |= PROT_READ;
+            if (p + 1 < end && p[1] == 'w') prot |= PROT_WRITE;
+            if (p + 2 < end && p[2] == 'x') prot |= PROT_EXEC;
+            return prot;
+        }
+        i = e + 1;
+    }
+    return -1;
+}
+
+static int install_exact_slot(uintptr_t slot_address, uintptr_t target,
+                              uintptr_t replacement, char *maps, ssize_t n) {
+    volatile uintptr_t *slot = (volatile uintptr_t*)slot_address;
+    uintptr_t current = *slot;
+
+    if (current == replacement) return 1;
+    if (current != target) {
+        LOGE("refusing to patch unexpected slot=%lx current=%lx expected=%lx",
+             (unsigned long)slot_address, (unsigned long)current, (unsigned long)target);
+        return 0;
+    }
+
+    int prot = mapping_protection(maps, n, slot_address);
+    if (prot < 0 || !(prot & PROT_READ) || (prot & PROT_EXEC)) {
+        LOGE("refusing to patch slot=%lx with unknown/unsafe protection=%d",
+             (unsigned long)slot_address, prot);
+        return 0;
+    }
+
+    uintptr_t page = slot_address & ~(PAGE_SIZE - 1UL);
+    if (mprotect((void*)page, PAGE_SIZE, prot | PROT_WRITE) != 0) {
+        LOGE("mprotect failed for method pointer slot=%lx", (unsigned long)slot_address);
+        return 0;
+    }
+
+    *slot = replacement;
+    int restore_result = mprotect((void*)page, PAGE_SIZE, prot);
+    if (restore_result != 0) {
+        LOGE("warning: failed to restore memory protection for slot=%lx",
+             (unsigned long)slot_address);
+    }
+
+    LOGI("installed method pointer hook slot=%lx target=%lx replacement=%lx",
+         (unsigned long)slot_address, (unsigned long)target, (unsigned long)replacement);
+    return 1;
+}
+
+static void rewrite_catch_request(void *self) {
+    if (!self) {
+        LOGE("CatchPokemonProto hook received null self");
+        return;
+    }
+
+    /*
+     * CatchPokemonProto object offsets are confirmed by its generated serializer:
+     * +0x20 NormalizedReticleSize (double)
+     * +0x30 HitPokemon (bool)
+     * +0x38 SpinModifier (double)
+     * +0x40 NormalizedHitPosition (double)
+     *
+     * 1.95 lies in the Excellent range [1.7, 2.0). 0.850 is a documented
+     * curveball request example; normalized hit position 1.0 represents the
+     * centered/full hit value used in that same established protocol example.
+     */
+    double old_nrs = *(double*)((char*)self + 0x20);
+    uint8_t old_hit = *((uint8_t*)((char*)self + 0x30));
+    double old_spin = *(double*)((char*)self + 0x38);
+    double old_hit_position = *(double*)((char*)self + 0x40);
+
+    *(double*)((char*)self + 0x20) = 1.95;
+    *((uint8_t*)((char*)self + 0x30)) = 1;
+    *(double*)((char*)self + 0x38) = 0.850;
+    *(double*)((char*)self + 0x40) = 1.0;
+
     unsigned int call = __sync_add_and_fetch(&g_hook_calls, 1);
-    if (call <= 10) LOGI("curve setter invoked #%u self=%p vector=(%f,%f,%f) method=%p",
-                         call, self, x, y, z, mi);
-    if (orig_curve_set) {
-        float mag = x*x + y*y + z*z;
-        if (mag < 0.000001f) x = 1.0f;
-        orig_curve_set(self, x, y, z, mi);
-    } else {
-        LOGI("ERROR: original curve setter is null; call dropped");
+    if (call <= 20) {
+        LOGI("catch request #%u NRS %f->1.95 hit %u->1 spin %f->0.850 position %f->1.0",
+             call, old_nrs, (unsigned int)old_hit, old_spin, old_hit_position);
     }
 }
 
-static uintptr_t parse_hex(const char **p, const char *end) {
-    uintptr_t v=0; while(*p<end) { char c=**p; int d;
-        if(c>='0'&&c<='9') d=c-'0'; else if(c>='a'&&c<='f') d=c-'a'+10; else if(c>='A'&&c<='F') d=c-'A'+10; else break;
-        v=(v<<4)|(uintptr_t)d; ++*p;
-    } return v;
-}
-static uintptr_t find_base(char *maps, ssize_t n) {
-    const char *needle="/libil2cpp.so";
-    for(ssize_t i=0;i<n;i++) {
-        int m=1; for(int j=0;needle[j];j++) if(i+j>=n||maps[i+j]!=needle[j]){m=0;break;}
-        if(!m) continue;
-        ssize_t s=i; while(s>0&&maps[s-1]!='\n')--s;
-        const char *p=maps+s, *end=maps+i;
-        uintptr_t lo=parse_hex(&p,end);
-        while(p<end&&*p!='-')++p; if(p<end)++p;
-        (void)parse_hex(&p,end);
-        while(p<end&&*p==' ')++p;
-        const char *q=p; while(q<end&&*q!=' ')++q;
-        while(q<end&&*q==' ')++q;
-        uintptr_t off=parse_hex(&q,end);
-        if(off==0) return lo;
+static void catch_write_to_hook(void *self, void *output, void *mi) {
+    rewrite_catch_request(self);
+    if (orig_catch_write_to) {
+        orig_catch_write_to(self, output, mi);
+    } else {
+        LOGE("original CatchPokemonProto.WriteTo is null; serialization dropped");
     }
-    return 0;
 }
-static int install(uintptr_t base, char *maps, ssize_t n) {
-    uintptr_t target=base+IL2CPP_RVA_CURVE_SET; int found=0;
-    const char *needle="/libil2cpp.so";
-    for(ssize_t i=0;i<n;) {
-        ssize_t e=i; while(e<n&&maps[e]!='\n')++e;
-        int il2cpp=0; for(ssize_t q=i;q+(ssize_t)12<e;q++){int m=1;for(int j=0;needle[j];j++)if(maps[q+j]!=needle[j]){m=0;break;}if(m){il2cpp=1;break;}}
-        if(il2cpp) {
-            const char *p=maps+i,*end=maps+e;
-            uintptr_t lo=parse_hex(&p,end); if(p<end)++p; uintptr_t hi=parse_hex(&p,end);
-            while(p<end&&*p==' ')++p;
-            int prot=0; if(p<end&&p[0]=='r')prot|=PROT_READ; if(p+1<end&&p[1]=='w')prot|=PROT_WRITE; if(p+2<end&&p[2]=='x')prot|=PROT_EXEC;
-            if((prot&PROT_READ)&&!(prot&PROT_EXEC)&&hi>lo) {
-                uintptr_t start=(lo+7UL)&~7UL;
-                for(uintptr_t a=start;a+sizeof(uintptr_t)<=hi;a+=sizeof(uintptr_t)) {
-                    volatile uintptr_t *slot=(volatile uintptr_t*)a;
-                    if(*slot!=target) continue;
-                    uintptr_t page=a&~(PAGE_SIZE-1UL);
-                    if(mprotect((void*)page,PAGE_SIZE,prot|PROT_WRITE)!=0) { LOGI("mprotect failed slot=%lx", (unsigned long)a); continue; }
-                    orig_curve_set=(curve_set_t)target;
-                    *slot=(uintptr_t)curve_set_hook;
-                    (void)mprotect((void*)page,PAGE_SIZE,prot);
-                    ++found;
-                }
-            }
-        }
-        i=e+1;
+
+static void catch_write_context_hook(void *self, void *writer, void *mi) {
+    rewrite_catch_request(self);
+    if (orig_catch_write_context) {
+        orig_catch_write_context(self, writer, mi);
+    } else {
+        LOGE("original CatchPokemonProto.khg is null; serialization dropped");
     }
-    return found;
 }
+
 static void *worker(void *unused) {
     (void)unused;
-    char *maps=g_maps; uintptr_t base=0; ssize_t n=0;
-    for(int i=0;i<300&&!base;i++) {
-        int fd=open("/proc/self/maps",O_RDONLY); if(fd>=0){n=read(fd,maps,MAPS_CAPACITY-1);close(fd);if(n>0){maps[n]=0;base=find_base(maps,n);}}
-        if(!base)usleep(100000);
+    uintptr_t base = 0;
+    ssize_t n = 0;
+
+    for (int i = 0; i < 300 && !base; i++) {
+        int fd = open("/proc/self/maps", O_RDONLY);
+        if (fd >= 0) {
+            n = read(fd, g_maps, MAPS_CAPACITY - 1);
+            close(fd);
+            if (n > 0) {
+                g_maps[n] = 0;
+                base = find_base(g_maps, n);
+            }
+        }
+        if (!base) usleep(100000);
     }
-    if(!base){LOGI("libil2cpp base not found");return 0;}
-    LOGI("libil2cpp base=%lx target=%lx", (unsigned long)base, (unsigned long)(base+IL2CPP_RVA_CURVE_SET));
-    for(int i=0;i<8;i++) {
-        int fd=open("/proc/self/maps",O_RDONLY); if(fd<0){usleep(250000);continue;}
-        n=read(fd,maps,MAPS_CAPACITY-1);close(fd);if(n<=0){usleep(250000);continue;}maps[n]=0;
-        int matches=install(base,maps,n);
-        if(matches){LOGI("curve setter pointer slot installed matches=%d; awaiting invocation",matches);return 0;}
-        usleep(250000);
+
+    if (!base) {
+        LOGE("libil2cpp base not found; enhanced throw hook not installed");
+        return 0;
     }
-    LOGI("curve setter pointer slot not found target=%lx", (unsigned long)(base+IL2CPP_RVA_CURVE_SET));
+
+    uintptr_t target_write_to = base + RVA_CATCH_WRITE_TO;
+    uintptr_t target_write_context = base + RVA_CATCH_WRITE_CONTEXT;
+    uintptr_t slot_write_to = base + SLOT_CATCH_WRITE_TO;
+    uintptr_t slot_write_context = base + SLOT_CATCH_WRITE_CONTEXT;
+
+    orig_catch_write_to = (catch_write_t)target_write_to;
+    orig_catch_write_context = (catch_write_t)target_write_context;
+
+    LOGI("libil2cpp base=%lx WriteTo=%lx slot=%lx khg=%lx slot=%lx",
+         (unsigned long)base,
+         (unsigned long)target_write_to, (unsigned long)slot_write_to,
+         (unsigned long)target_write_context, (unsigned long)slot_write_context);
+
+    /* The library mapping exists only after relocation; read current maps once more. */
+    int fd = open("/proc/self/maps", O_RDONLY);
+    if (fd < 0) {
+        LOGE("unable to re-read maps; enhanced throw hook not installed");
+        return 0;
+    }
+    n = read(fd, g_maps, MAPS_CAPACITY - 1);
+    close(fd);
+    if (n <= 0) {
+        LOGE("unable to read maps; enhanced throw hook not installed");
+        return 0;
+    }
+    g_maps[n] = 0;
+
+    int write_to_ok = install_exact_slot(slot_write_to, target_write_to,
+                                         (uintptr_t)catch_write_to_hook, g_maps, n);
+    int write_context_ok = install_exact_slot(slot_write_context, target_write_context,
+                                              (uintptr_t)catch_write_context_hook, g_maps, n);
+
+    if (write_to_ok || write_context_ok) {
+        LOGI("Enhanced Throw serializer hooks installed: WriteTo=%d khg=%d",
+             write_to_ok, write_context_ok);
+    } else {
+        LOGE("no serializer hook installed; binary did not match verified 0.431.0 layout");
+    }
     return 0;
 }
+
 __attribute__((constructor)) static void init(void) {
-    LOGI("native hook payload loaded");
-    pthread_t t;
-    if(pthread_create(&t,0,worker,0)==0) pthread_detach(t);
-    else LOGI("failed to start hook worker");
+    LOGI("native enhanced-throw payload loaded");
+    pthread_t thread;
+    if (pthread_create(&thread, 0, worker, 0) == 0) {
+        (void)pthread_detach(thread);
+    } else {
+        LOGE("failed to start enhanced-throw worker");
+    }
 }

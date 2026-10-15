@@ -15,11 +15,12 @@ private val COMPATIBILITY_POKEMON_GO = Compatibility(
 )
 
 /**
- * Experimental native loader infrastructure for Pokémon GO 0.431.0 arm64-v8a.
+ * Experimental ARM64 hook for the verified CatchPokemonProto.WriteTo entry point
+ * in Pokémon GO 0.431.0. Runtime behavior still needs device confirmation.
  */
 val pokemonGoNativeBootstrap = rawResourcePatch(
     name = "Enhanced throw",
-    description = "Installs the experimental native research loader for Pokémon GO 0.431.0 arm64-v8a. May prevent the game from starting; enable only for testing.",
+    description = "Experimental Pokémon GO 0.431.0 ARM64 hook that adjusts outgoing catch-request fields for an Excellent hit and curveball; runtime behavior is not yet verified.",
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_POKEMON_GO)
