@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/belalsalah74/pogo1/compare/v1.1.0...v1.1.1) (2026-10-16)
+
+### 🐛 Bug Fixes
+
+* remove version-specific Google sign-in bytecode assumptions ([1b5190d](https://github.com/belalsalah74/pogo1/commit/1b5190d12f5f086b9fc70d9da350c156966f90e7))
+
 ## [1.1.0](https://github.com/belalsalah74/pogo1/compare/v1.0.4...v1.1.0) (2026-10-16)
 
 ### 🐛 Bug Fixes
