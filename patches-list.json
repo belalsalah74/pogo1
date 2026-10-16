@@ -1,13 +1,42 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.4",
+  "version": "1.0.0-dev.10",
   "patches": [
     {
       "name": "Enhanced throw",
-      "description": "Installs the experimental native research loader for Pokémon GO 0.431.0 arm64-v8a.",
-      "default": true,
+      "description": "Experimental Pokémon GO 0.431.0 ARM64 hook that adjusts outgoing catch-request fields for an Excellent hit and curveball; runtime behavior is not yet verified.",
+      "default": false,
       "category": null,
       "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.nianticlabs.pokemongo",
+          "name": "Pokémon GO",
+          "description": null,
+          "apkFileType": null,
+          "appIconColor": null,
+          "signatures": null,
+          "targets": [
+            {
+              "version": "0.431.0",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Google sign-in callback",
+      "description": "Routes the Google OAuth callback to Unity and forwards its URI for Pokémon GO 0.431.0.",
+      "default": true,
+      "category": null,
+      "dependencies": [
+        "BytecodePatch"
+      ],
       "compatiblePackages": [
         {
           "packageName": "com.nianticlabs.pokemongo",

@@ -1,32 +1,62 @@
-## [1.0.4](https://github.com/belalsalah74/pogo1/compare/v1.0.3...v1.0.4) (2026-10-08)
+## [1.0.0-dev.10](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.9...v1.0.0-dev.10) (2026-10-15)
 
 ### 🐛 Bug Fixes
 
-* fix update ([17848b1](https://github.com/belalsalah74/pogo1/commit/17848b135f4aab07d532b52547db9c4e82114876))
+* forward Google OAuth activity result to Unity ([083f0ce](https://github.com/belalsalah74/pogo1/commit/083f0cec9cae2ac7df28362054b5efe9a73dd962))
 
-## [1.0.3](https://github.com/belalsalah74/pogo1/compare/v1.0.2...v1.0.3) (2026-10-08)
-
-### 🐛 Bug Fixes
-
-* fixing update issues ([ff96e08](https://github.com/belalsalah74/pogo1/commit/ff96e08fd17699b813d3a90b8c72f83022869877))
-
-## [1.0.2](https://github.com/belalsalah74/pogo1/compare/v1.0.1...v1.0.2) (2026-10-08)
+## [1.0.0-dev.9](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.8...v1.0.0-dev.9) (2026-10-15)
 
 ### 🐛 Bug Fixes
 
-* fix wrapper ([b7a0442](https://github.com/belalsalah74/pogo1/commit/b7a044279e87952d70d28541e055f402ea9a2142))
+* rewrite catch fields before protobuf size calculation ([4570012](https://github.com/belalsalah74/pogo1/commit/4570012678451497eccd222c2857b7af57042a72))
 
-## [1.0.1](https://github.com/belalsalah74/pogo1/compare/v1.0.0...v1.0.1) (2026-10-07)
+## [1.0.0-dev.8](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.7...v1.0.0-dev.8) (2026-10-15)
 
 ### 🐛 Bug Fixes
 
-* fix error ([d0ab7a6](https://github.com/belalsalah74/pogo1/commit/d0ab7a6d07866d3089542cb498fecddc3449c82c))
-* fix syntax error  ([13d82d3](https://github.com/belalsalah74/pogo1/commit/13d82d33c2f8623a5165707b4eddd71934bb24eb))
-* fix wrong class ([2ea9dd5](https://github.com/belalsalah74/pogo1/commit/2ea9dd5db9e08fc9bc8a7c75c28bcc89e1f60b24))
-* fixin ([77a0fef](https://github.com/belalsalah74/pogo1/commit/77a0fef2a23eb8d18f12c0ecaa634051e99070e1))
+* hook outgoing catch request for enhanced throw ([6036330](https://github.com/belalsalah74/pogo1/commit/6036330391d4037e1dd2ebce6f82c768e0c1693c))
 
-## 1.0.0 (2026-10-06)
+## [1.0.0-dev.7](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.6...v1.0.0-dev.7) (2026-10-15)
+
+### 🐛 Bug Fixes
+
+* use correct Android arm64 pthread handle type ([4bb59b1](https://github.com/belalsalah74/pogo1/commit/4bb59b1dcdd1cee1ba33c596b789b59698ef57b9))
+
+## [1.0.0-dev.6](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2026-10-15)
+
+### 🐛 Bug Fixes
+
+* avoid native loader SONAME collision ([f246f11](https://github.com/belalsalah74/pogo1/commit/f246f11042972ffaf60630aaac6188e04ddff96a))
+* defer experimental hook until after Unity JNI init ([8fafe79](https://github.com/belalsalah74/pogo1/commit/8fafe79d9132457ee4ed93c14fb7a6c8ab4a95e5))
+* link Android logging for native wrapper ([01b0f4e](https://github.com/belalsalah74/pogo1/commit/01b0f4e6609956c92b70afea5e515c4f9d2b1981))
+
+## [1.0.0-dev.5](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-10-14)
+
+### 🐛 Bug Fixes
+
+* route Google OAuth callback to Unity activity ([31cb404](https://github.com/belalsalah74/pogo1/commit/31cb404cfc1d6496eb336fbe46643c0489584f97))
+
+## [1.0.0-dev.4](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-10-14)
+
+### 🐛 Bug Fixes
+
+* disable experimental Pokémon GO native loader by default ([f123814](https://github.com/belalsalah74/pogo1/commit/f123814f3db32084164ed863d2d31e165a1390a5))
+
+## [1.0.0-dev.3](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-10-14)
 
 ### ✨ New Features
 
-* add Pokemon Go enhanced throw patch ([2c8f4b4](https://github.com/belalsalah74/pogo1/commit/2c8f4b4fd9510544708e2258b882374d9e99a278))
+* add Google sign-in callback patch for Pokémon GO 0.431.0 ([785ef9b](https://github.com/belalsalah74/pogo1/commit/785ef9b01f67b9d8c21583b58f5777152559cf25))
+
+## [1.0.0-dev.2](https://github.com/belalsalah74/pogo1/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-10-14)
+
+### 🐛 Bug Fixes
+
+* add native throw hook diagnostics ([8d66177](https://github.com/belalsalah74/pogo1/commit/8d66177bb4d744fc19592a50d73a46dfa0ba93ac))
+* update Android SDK setup action ([f48e89a](https://github.com/belalsalah74/pogo1/commit/f48e89ace0cdc36686756462962f07ded4a4fd70))
+
+## 1.0.0-dev.1 (2026-10-12)
+
+### 🐛 Bug Fixes
+
+* fix hook ([2d59108](https://github.com/belalsalah74/pogo1/commit/2d59108a63e288934275e140591bbbb4720661ab))
