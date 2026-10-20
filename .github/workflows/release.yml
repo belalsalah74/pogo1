@@ -41,6 +41,7 @@ jobs:
           mkdir -p patches/src/main/resources/pgo/arm64-v8a
           cp build/native/libmain.so patches/src/main/resources/pgo/arm64-v8a/libmain.so
           cp build/native/libpgo_hook.so patches/src/main/resources/pgo/arm64-v8a/libpgo_hook.so
+          cp build/native/libpgo_rpc_probe.so patches/src/main/resources/pgo/arm64-v8a/libpgo_rpc_probe.so
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -72,4 +73,13 @@ jobs:
         if: steps.release.outputs.new_release_published != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:buildAndroid clean --no-daemon
+        run: ./gradlew :patches:buildAndroid --no-daemon
+
+      - name: Upload patch bundle for branch testing
+        if: steps.release.outputs.new_release_published != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: morphe-patches-${{ github.sha }}
+          path: patches/build/libs/patches-*.mpp
+          if-no-files-found: error
+          retention-days: 7
