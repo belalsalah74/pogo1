@@ -13,6 +13,15 @@ extern int __android_log_print(int, const char *, const char *, ...);
 
 typedef jint (*jni_onload_t)(JavaVM *, void *);
 
+static void load_optional_payload(const char *soname, const char *description) {
+    void *handle = dlopen(soname, RTLD_NOW | RTLD_LOCAL);
+    if (!handle) {
+        LOGI("optional payload not loaded: %s (%s)", description, soname);
+        return;
+    }
+    LOGI("optional payload loaded: %s (%s)", description, soname);
+}
+
 __attribute__((visibility("default")))
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     LOGI("wrapper JNI_OnLoad entered");
@@ -23,28 +32,19 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     }
 
     jni_onload_t fn = (jni_onload_t)dlsym(orig, "JNI_OnLoad");
-    if (!fn) {
-        // JNI_OnLoad is optional for a native library. Do not reject an otherwise
-        // loadable original library just because it does not export this symbol.
-        LOGI("original library has no JNI_OnLoad; continuing with JNI 1.6");
-        return JNI_VERSION_1_6;
-    }
-
-    // Let the original library initialize first. The hook's constructor starts
-    // an asynchronous worker, so loading it before Unity's JNI initialization
-    // can introduce an avoidable startup race.
-    jint version = fn(vm, reserved);
-    if (version < 0) {
-        LOGE("original JNI_OnLoad failed: %d", version);
-        return version;
-    }
-
-    void *hook = dlopen("libpgo_hook.so", RTLD_NOW | RTLD_LOCAL);
-    if (!hook) {
-        LOGE("failed to load libpgo_hook.so; continuing without hook");
+    jint version = JNI_VERSION_1_6;
+    if (fn) {
+        version = fn(vm, reserved);
+        if (version < 0) {
+            LOGE("original JNI_OnLoad failed: %d", version);
+            return version;
+        }
     } else {
-        LOGI("native hook payload loaded after original JNI_OnLoad");
+        LOGI("original library has no JNI_OnLoad; continuing with JNI 1.6");
     }
 
+    /* Feature payloads are optional; each Morphe patch adds only its own .so. */
+    load_optional_payload("libpgo_hook.so", "Enhanced Throw");
+    load_optional_payload("libpgo_rpc_probe.so", "RPC Runtime Probe");
     return version;
 }
